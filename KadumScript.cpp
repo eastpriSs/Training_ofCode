@@ -128,7 +128,7 @@ void analysCodeKS(){
         char char_FOR_analys = global_array_of_char[i]; // Символ идущий дальше по массиву
 
         // std::cout << char_FOR_analys << std::endl; <DB>
-        
+
         if(char_FOR_analys == START_CODE and code_started == false){
             code_started = true; // Начало анализа
             continue;
@@ -146,11 +146,11 @@ void analysCodeKS(){
 
             //Подумать еще, пока получаеться странный код, WORKONIT, но должен работать
             //Тоесть если символ не равняеться (!) не объявляеться переменная,то определяем функцию
-            // if(char_FOR_analys == '!'){
-            //     variable_name_adding = true;
-            // }else if(argumets_adding == false){
-            //     function_adding = true;
-            // }
+            if(char_FOR_analys == '!'){
+
+                function_adding = false;
+                variable_name_adding = true;
+            }
 
             // if(variable_name_adding){} WORKONIT
 
@@ -242,9 +242,9 @@ void readFile(std::string FileLink)
     analysCodeKS();// Если строки закончились, переходим к анализу
 }
 
-// void file_write()
+// void fileWrite(std::string FileLink)
 // {    
-//     Fstream.open(FILE); // окрываем файл для записи
+//     Fstream.open(FileLink); // окрываем файл для записи
 //     if (Fstream.is_open()) 
 //     {
 //         Fstream << "" << std::endl;
@@ -260,8 +260,8 @@ void readFile(std::string FileLink)
 int main(){
     // std::ofstream oFile ( "Test.txt" ) ; 
 
-    // file_write(); // запись в файл
-    readFile("Test.txt"); // чтение файла
+    // fileWrite("Test.ks"); // запись в файл
+    readFile("Test.ks"); // чтение файла
     std::cin.ignore();
 }
 
