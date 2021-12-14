@@ -1,4 +1,5 @@
 
+
 /* Запуск кода .ks 
 
 <DB> - дэбаги
@@ -19,7 +20,11 @@ $
 */
 
 
+
+
+
 //WORKONIT Пофиксить баг со строкой, тригерит на знак ) ИСПРАВИТЬ
+#include <map> // словари
 #include <iostream>
 #include <fstream> // Работа с файлами
 #include <string>
@@ -30,13 +35,29 @@ $
 // KS SYNTAX
 
 const char START_CODE = '$'; // Только символ 
-const std::string OUTPUT_METHOD = "write";
-
-//==========================================================================
+const std::string OUTPUT_METHOD = "out";
+const std::string OUTPUT_METHOD_ENTER = "lout";
+// mp["привет"] = "hi";
 
 std::vector<std::string> files_strings = {};// массив со строками из файла
 
 std::vector<char> global_array_of_char = {}; // массив символов для всех функций
+
+
+//Словари по переменные
+//==========================================================================
+    // Словарь под переменные типа STRING
+    std::map <std::string, std::string> vrS;
+    // Словарь под переменные типа INTEGER
+    std::map <std::string, int> vrI;
+    // Словарь под переменные типа DOUBLE WORKONIT пока под вопросом
+    std::map <std::string, double> vrD;
+    // Словарь под переменные типа BOOLEAN
+    std::map <std::string, bool> vrB;
+    // Словарь под переменные типа FLOAT WORKONIT пока под вопросом
+    std::map <std::string, float> vrF;
+// Доп. тема
+std::map<std::string, int> names_of_all_variables;
 
 /*
 
@@ -59,44 +80,107 @@ void startCode(){
 
     std::cout << "Output is:" << "\n\n";
 
+    /*
+
+        ДОБАВИТЬ ОПРЕДЕЛЕНИЯ ТИПОВ ДАННЫХ
+        НУ И ПОСМОТРИ НА WORKONIT ПО ПРИКОЛУ
+
+    */
+
+
+
     for(int i = 0; i < final_doing.size(); i++){
-        if(final_doing[i] == "out"){
-            std::cout << final_doing[i+1] << std::endl;
+        if(final_doing[i] == "lout" || final_doing[i] == "out"){
+            // Апендикс
+            // ========================
+            // Объяснсяю минутку БЫДЛОКОДИНГА)
+            // Вообще это сделанно в благих намериньях и тут я проверяю есть ли переменная равная аргументу, который нужно вывести
+            
+            if(names_of_all_variables.count(final_doing[i+1]) > 0){
+                if(names_of_all_variables[final_doing[i+1]] == 0){// INT
+                    // Выясняем нужен ли перенос.
+                    if(final_doing[i] == "lout"){
+                        std::cout << vrI[final_doing[i+1]] << std::endl;
+                    }
+                    if(final_doing[i] == "out"){
+                        std::cout << vrI[final_doing[i+1]];
+                    }
+                    
+                }
+                if(names_of_all_variables[final_doing[i+1]] == 2){// FLOAT
+                    if(final_doing[i] == "lout"){
+                       std::cout << vrF[final_doing[i+1]] << std::endl; 
+                    }
+                    if(final_doing[i] == "out"){
+                        std::cout << vrF[final_doing[i+1]];
+                    }
+                }
+                if(names_of_all_variables[final_doing[i+1]] == 3){// BOUBLE
+                    if(final_doing[i] == "lout"){
+                       std::cout << vrD[final_doing[i+1]] << std::endl; 
+                    }
+                    if(final_doing[i] == "out"){
+                        std::cout << vrD[final_doing[i+1]];
+                    }
+                }
+                if(names_of_all_variables[final_doing[i+1]] == 4){// BOOLEAN
+                    if(vrB[final_doing[i+1]] == 1){
+                        std::cout << "Yee, that's true!" << std::endl;
+                    }
+                    if(vrB[final_doing[i+1]] == 0){
+                        std::cout << "Oh, that's false!" << std::endl;
+                    }
+                }
+                if(names_of_all_variables[final_doing[i+1]] == 5){
+                    if(final_doing[i] == "lout"){
+                       std::cout << vrS[final_doing[i+1]] << std::endl;  // STRING
+                    }
+                    if(final_doing[i] == "out"){
+                        std::cout << vrS[final_doing[i+1]];
+                    }                    
+                }
+                
+
+            }else{
+                if(final_doing[i] == "lout"){
+                    std::cout<< final_doing[i+1] << std::endl;
+                }
+                if(final_doing[i] == "out"){
+                    std::cout<< final_doing[i+1];
+                }
+            }
+
+            
         }
+        // std::cout << final_doing[i] << " ; "; <db>
     }
+    
 }
 
 
 void preStart(){
-    // std::cout<<"doing "<<doing.size()<<std::endl; <DB>
-
+    // std::cout<<"doing "<<doing.size()<<std::endl;  <db>
+    
     for(int i = 0; i < doing.size(); i++){
+        
+        // out()
         if(doing[i] == OUTPUT_METHOD){
 
-            // {"write", "Hello world!"}
+            final_doing.push_back("out");
+            final_doing.push_back(doing[i+1]);
 
-            bool string_start = false;
-            //Аргумент
-            std::string loc_string = "";
-
-            //Разбиваю строку на символы
-            int len = doing[i+1].length();
-            char local_char_array[len + 1]; // массив с символами
-            std::strcpy(local_char_array, doing[i+1].c_str());
-
-            for(int y=0; y< len; y++){
-                //                               что это за хуйня? WORKONIT    
-                if(local_char_array[y] == '"' or local_char_array == "'" and string_start == false){
-                    string_start = true;
-                    continue;
-                }
-                if(string_start){
-                    loc_string += local_char_array[y];
-                }
-            }
-            final_doing.push_back("out"); 
-            final_doing.push_back(loc_string);
         }
+        // lout()
+        if(doing[i] == OUTPUT_METHOD_ENTER){
+
+            final_doing.push_back("lout");
+            final_doing.push_back(doing[i+1]);
+
+        }  
+
+        // std::cout << doing[i] << " ; "; <DB>
+    
+        
     }
 
     startCode();
@@ -104,12 +188,20 @@ void preStart(){
 }
 
 
+
+
 void analysCodeKS(){
 
     // Все необходимое...
+    std::string value = ""; // 
     std::string func = ""; // Определяем функцию, либо метод
     std::string argumets = "";// Добавляем аргументы
+    std::string variable_name = "";
     
+    int type_of_variable_checker = 0;
+
+    bool string_is_true = false; // если мы нашли строку
+    bool value_adding = false; // Нахождение значения для переменной
     bool variable_name_adding = false; // Если найден символ ! и объявляеться переменная
     bool code_started = false;// Если найден символ $
     bool function_adding = true; // Добавление функции, либо метода
@@ -127,13 +219,15 @@ void analysCodeKS(){
 
         char char_FOR_analys = global_array_of_char[i]; // Символ идущий дальше по массиву
 
-        // std::cout << char_FOR_analys << std::endl; <DB>
+        // std::cout << char_FOR_analys << std::endl;  //<DB>
 
         if(char_FOR_analys == START_CODE and code_started == false){
             code_started = true; // Начало анализа
             continue;
         }
         if (char_FOR_analys ==START_CODE and code_started == true){
+            
+
             // for(int u = 0; u < doing.size(); u++){
             //     std::cout << doing[u] << std::endl;
             // } <DB>
@@ -142,87 +236,218 @@ void analysCodeKS(){
             preStart();
         } 
 
+
         if(code_started == true){
 
-            //Подумать еще, пока получаеться странный код, WORKONIT, но должен работать
-            //Тоесть если символ не равняеться (!) не объявляеться переменная,то определяем функцию
-            if(char_FOR_analys == '!'){
 
+            // WORKONIT
+
+            // ## Переменные
+// ==========================================================================================
+            if(char_FOR_analys == '!' && string_is_true == false){
+                
                 function_adding = false;
                 variable_name_adding = true;
-            }
-
-            // if(variable_name_adding){} WORKONIT
-
-            //Строка закончилась, возвращаем всё на прежнее место
-            if(char_FOR_analys==';' and string_started == false){
-
-                func = ""; 
-                argumets = "";
-                
-                bool variable_name_adding = false;
-                bool code_started = false;
-                bool function_adding = true;
-                bool argumets_adding = false;
                 continue;
             }
 
-            //Добавление аргументов
-            if(argumets_adding == true){
-                if(char_FOR_analys == ')'){
-                    argumets_adding = false;
-                    doing.push_back(argumets);
-                    continue;
-                }
-                // if()
-                argumets += char_FOR_analys;
-                continue;
-            }
-            // Добавление методов и функций
-            if(function_adding == true)
-            {
-                if(char_FOR_analys == '('){
-                    doing.push_back(func);
-                    argumets_adding = true;
-                    continue;
-                }
-                func += char_FOR_analys;
-            } 
-            // write("Hello world",n) Нам нужен n как перенос строки?
             /*
-            Подумай над этим(над аргументами)
-            WORKONIT
+            0 - Int
+            2 - Float
+            3 - Double
+            4 - Boolean
+            5 - String
             */
+
+            // Обнаружение типов
+        //===================================================
+
+            if(value_adding == true){
+                
+                // !num = "Hello";
+                
+                // std::cout << value << std::endl; <DB>
+
+                if(char_FOR_analys == '"' && string_is_true == false){
+                    type_of_variable_checker = 5; // String
+                    string_is_true = true;
+                    continue;
+                }
+                // Апендикс
+                if(string_is_true == true){
+                    if(char_FOR_analys == '"'){
+                        string_is_true = false;
+                        continue;
+                    }
+                    value += char_FOR_analys;
+                    continue;
+                }
+
+                // !num = 1.2; - double |  !num = 1.23; - float
+                if(char_FOR_analys == '.'){
+                    if(global_array_of_char[i+2] != ';' && global_array_of_char[i+2] != ' '){
+                        type_of_variable_checker = 2; // float
+                    }else{
+                        type_of_variable_checker = 3; // double
+                    }
+                }
+
+                // !num = true; !num = false;
+                if(char_FOR_analys == ';'){
+        
+                    if(value == "true"){
+                        type_of_variable_checker = 4;// boolean
+                        value = "1";
+                    }
+                    if(value == "false"){
+                        type_of_variable_checker = 4;
+                        value = "0";
+                    }
+                        
+                }
+
+                //===============================================
+
+                if(char_FOR_analys != ';' && char_FOR_analys != ' '){
+                    value += char_FOR_analys;
+                }
+                
+                // собираем значение
+                
+                //==============================================
+                
+                // Конец строки !num = 10; <-- Мы щяс прямо на последнем символе.
+                if(string_is_true == false and char_FOR_analys == ';'){ // если ; не относиться к строке, то
+                    // Пора уже добавить переменную
+                    
+                    if(type_of_variable_checker == 0){
+                        vrI[variable_name] = std::stoi(value);
+                    }
+                    if(type_of_variable_checker == 2){
+                        vrF[variable_name] = std::stod(value);
+                    }
+                    if(type_of_variable_checker == 3){
+                        vrD[variable_name] = std::stod(value);
+                    }
+                    if(type_of_variable_checker == 4){
+                        vrB[variable_name] = std::stod(value);
+                    }
+                    if(type_of_variable_checker == 5){
+                        vrS[variable_name] = value;
+                    }   
+
+                    // last = variable_name;
+                    names_of_all_variables.emplace(variable_name, type_of_variable_checker);
+
+                    value = "";
+                    variable_name = "";
+
+
+                    string_is_true = false; 
+                    value_adding = false; 
+                    variable_name_adding = false; 
+                    function_adding = true; 
+                    argumets_adding = false; 
+                    string_started = false;
+
+                    continue;
+                }
+            }
+
+
+            if(variable_name_adding == true){
+                if(char_FOR_analys == '=' and variable_name_adding  == true){
+                    //  !num = 10; если мы находим = то теперь добавляем значение
+                    variable_name_adding = false;
+                    value_adding = true;
+                    continue;   
+                }
+                if(char_FOR_analys != ' '){
+                    variable_name += char_FOR_analys;
+                }       
+                
+                
+            }
+// =====================================================================================================================
+
+            // ## Функции и методы, аргументы
+//=========================================================================================================
+
+            if(function_adding == false && argumets_adding == false && char_FOR_analys == ';'){
+                function_adding = true;
+                continue;
+            }
+
+            if(function_adding == true && char_FOR_analys == '(')
+            {
+                
+                doing.push_back(func);
+                argumets_adding = true;
+                function_adding = false;
+
+                func = "";
+
+                continue;
+            }
+
+            if(function_adding == true){
+                
+                if(char_FOR_analys == ' '){
+                    continue;
+                }   
+
+             func += char_FOR_analys;   
+            }
+
+
+            // value = m.at(key) <-- Получения значения
+            if(argumets_adding == true){
+                              
+                if(char_FOR_analys == ')'){
+                     
+                    doing.push_back(argumets);
+                    argumets = "";
+                    argumets_adding = false;
+                    continue;  
+                }
+                // Если аргумент являеться строкой write("Hello world");
+                if(char_FOR_analys == '"'){
+                    string_is_true = true;
+                    continue;
+                }
+                if(string_is_true == true && char_FOR_analys == '"'){
+                    string_is_true = false;
+                    continue;
+                }
+                
+                argumets += char_FOR_analys; // WORKONIT Я НЕНАВИЖУ СВОЮ ЖИЗНЬ
+            }
         }
 
     }
+    // preStart(); // Без понятия что это
 }   
 // ==================================================================================
-void readFile(std::string FileLink)
-{
+
+
+void readFile(std::string FileLink){
 
     std::string line;
  
     std::ifstream loc_file(FileLink); // окрываем файл для чтения, loc_file - объект класса
-    if (loc_file.is_open())
-    {
+    if (loc_file.is_open()){
+
         while (getline(loc_file, line))
         {
             // std::cout << "line " <<line << std::endl; <DB>
             files_strings.push_back(line); // добавление строки 
         }
-    } else{
+    }else{
         std::cout<< "End of program, file not found -1";
         return;
     }
     loc_file.close();     // закрываем файл
      
-    // вывод вектора
-    // for(int i = 0; i<files_strings.size(); i++){
-    //     std::cout << files_strings[i] << std::endl;
-    // } <DB>
-    // Конвертируем массив строк в массив симвалов
-    //=====================================================================================
 
     for(int i = 0; i < files_strings.size(); i++){
         std::string line_from_array = files_strings[i];
@@ -233,33 +458,16 @@ void readFile(std::string FileLink)
     
         // Копируем содержимое строки и переводим в массив
         std::strcpy(char_array_of_code, files_strings[i].c_str());
-
         for (int i = 0; i < len; i++)
             global_array_of_char.push_back(char_array_of_code[i]);
     
     }
 
-    analysCodeKS();// Если строки закончились, переходим к анализу
+    analysCodeKS();
+    // Если строки закончились, переходим к анализу
 }
 
-// void fileWrite(std::string FileLink)
-// {    
-//     Fstream.open(FileLink); // окрываем файл для записи
-//     if (Fstream.is_open()) 
-//     {
-//         Fstream << "" << std::endl;
-//     }
-//     Fstream.close();
-// }
-
-
-// void menu(){ // Получение имени файла и вывод инструкции к KS
-//     return 0; // pass
-// }
-
 int main(){
-    // std::ofstream oFile ( "Test.txt" ) ; 
-
     // fileWrite("Test.ks"); // запись в файл
     readFile("Test.ks"); // чтение файла
     std::cin.ignore();
