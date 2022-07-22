@@ -1,10 +1,63 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <vector>
+
+namespace PrivateTimeKit
+{
+    class Split
+    {
+        public:
+        
+        explicit Split()
+        {
+        }
+
+        explicit Split( std::string& str, char sep ) {
+                std::stringstream ss(str);
+                std::string token;
+                
+                // HOURS
+                std::getline(ss, token, sep);
+                hr = std::stoi(token);
+
+                // MINUTE
+                std::getline(ss, token, sep);
+                min = std::stoi(token);
+
+                // SECOND
+                std::getline(ss, token, sep);
+                sec = std::stoi(token);
+
+                // GREEN
+                std::getline(ss, token, sep);
+                green = std::stoi(token);
+
+                // RED
+                std::getline(ss, token, sep);
+                red = std::stoi(token);         
+            }
+
+        static short  hr;
+        static short  min;
+        static short  sec;
+        static short  green;
+        static short  red;
+    
+    };
+
+    short Split::hr    = -1;
+    short Split::min   = -1;
+    short Split::sec   = -1;
+    short Split::green = -1;
+    short Split::red   = -1;
+} // PrivateTimeKit
 
 namespace TimeKit
 {
 
 using std::ostream;
+using PrivateTimeKit::Split;
 
 struct Hour
 {
@@ -92,8 +145,25 @@ typedef struct TimeFormatHMS
 {
     TimeFormatHMS(const short h,
                   const short m,
-                  const short s)
-    : hour(h), minutes(m), sec(s)
+                  const short s,
+                  const short g,
+                  const short r)
+    : spl    (   ),      
+      hour   ( h ), 
+      minutes( m ), 
+      sec    ( s ),
+      green  ( g ),   
+      red    ( r )  
+    {  
+    }
+
+    
+    TimeFormatHMS( std::string&& str )   // Если нам поступает формат вида: "8:0:0"
+    : spl(str, separator), hour   ( Split::hr    ), 
+                           minutes( Split::min   ),
+                           sec    ( Split::sec   ),
+                           green  ( Split::green ),
+                           red    ( Split::red   )       
     {  
     }
 
@@ -136,13 +206,28 @@ typedef struct TimeFormatHMS
         return this->sec;
     }
 
-    void HMS_print() const;   
+    void HMS_print() const; 
+    void HMSGR_print() const;   
 
+    const char separator = ':';
+
+    Split  spl;
     Hour   hour; 
     Minute minutes; 
     Second sec;
 
+    // Количество времени цвета
+    Second green;
+    Second red; 
+
 } t_HMS;
+
+void TimeFormatHMS::HMSGR_print() const
+{
+    using std::cout;
+
+    cout << hour << ':' << minutes << ':' << sec << '|' << green << ':' << red << '\n';   
+}
 
 
 void TimeFormatHMS::HMS_print() const
@@ -155,33 +240,79 @@ void TimeFormatHMS::HMS_print() const
 } // namespace TimeKit
 
 
-void parseData(std::string&& lnk, short lnnm = 0) 
+
+void outputManual() {
+// Выводит коды для работы с меню
+    using std::cout;
+    
+    cout << "__________________________________" << '\n';
+    cout << "( * ) MANUAL FOR TERMINAL INPUT   |" << '\n';
+    cout << "-----------  \'-1\' - exit          |" << '\n';
+    cout << "-----------  \'0\'  - print all ids |" << '\n';
+
+}
+
+void outputTimetable( std::string& time_str  ) 
+{
+    using TimeKit::t_HMS;
+    using std::cout;
+
+    t_HMS originTime( std::move(time_str) );
+
+    originTime.HMSGR_print();
+
+    int diffHours = 12*60;
+
+    for ( int i = 0; 
+                i < diffHours; 
+                        i += originTime.green.value + originTime.red.value ) 
+    {
+        originTime += originTime.green;
+        cout << "RED -- ";
+        originTime.HMS_print();
+        originTime += originTime.red;
+        cout << "GREEN -- ";
+        originTime.HMS_print();
+    }
+
+}
+
+void outputData(std::string&& lnk, short lnnm = -1) 
 
 // * Получает сведения о светофорах и выводит на экран 
 // Аргументы: имя файла и та строка, которую нужно прочесть
+// Если lnnm не равен -1, то нужно расcчитать расписание
+// определенного айди, то есть получить время на строке lnnm 
 
 {
-    static std::ifstream data(lnk); // ?? если файл будет удален в процессе выполнения
+
+    static std::ifstream data;
+    data.open(lnk);
+    
     if ( !data.is_open() ){
         std::cout << "File invalid";
     }
-
+    
     static std::string line; 
-    static short lineNum = lnnm;
+    static short lineNum = 0;
 
-    while (std::getline(data, line))
+    while (std::getline(data, line) && lineNum != lnnm)
     {
         // Area комментария в файле(должен распологаться в конце)
         if ( line[0] == '&' ) break;
-
-        lineNum++;
         if ( line == "" ) continue; 
-        if ( lineNum % 2 == 0 ) continue; // Четные строки отвечают за время
-                                          // их не нужно выводить    
-        std::cout << "ID: " << lineNum+1 << " -- place: " << line << '\n';
-        // ID соответсвует номеру строки на которой расположенно время
+        lineNum++;
+        if ( lineNum % 2 == 0 ) continue;                                   // Четные строки отвечают за время
+                                                                            // их не нужно выводить    
+        
+        std::cout << "ID: " << lineNum << " -- place: " << line << '\n';    // ID соответсвует номеру строки на которой расположенно время
+                                                                            // эти данные нас больше всего интересуют
     }
     
+    // Вывод расписания, передаем найденное время
+    if (lnnm != -1)
+        outputTimetable( line );
+
     lineNum = 0;
     data.close();
 }
@@ -189,26 +320,25 @@ void parseData(std::string&& lnk, short lnnm = 0)
 int main()
 {
     using std::cout;
-    using TimeKit::t_HMS;
-    using TimeKit::Second;
 
-    Second green(55);
-    Second red(20);
-    int diffHours;
+    // Вывод доступных светофоров
+    outputData("Barnaul.txt");
+    outputManual();
 
-    diffHours = 12*60;
+    int inID = 0; // Не паримся насчет исключений
 
-    t_HMS originTime(8, 0, 0);
+    // Главный цикл
+    while (inID != -1)
+    {
+        std::cout << "ID: ";
+        std::cin >> inID;
+        system("cls");
+        
+        if ( inID == 0 )                      // Возвращение к полному списку  
+            outputData("Barnaul.txt");
+        else                                 // Если указанно ID, то выводим расписание
+            outputData("Barnaul.txt", inID); 
 
-    parseData("Barnaul.txt");
-
-    // for ( int i = 0; i < diffHours; i += green.value+red.value ) 
-    // {
-    //     originTime += green;
-    //     cout << "RED -- ";
-    //     originTime.HMS_print();
-    //     originTime += red;
-    //     cout << "GREEN -- ";
-    //     originTime.HMS_print();
-    // }
+        outputManual();
+    }
 }
