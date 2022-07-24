@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <vector>
+#include <ctime>
 
 namespace PrivateTimeKit
 {
@@ -70,12 +70,6 @@ struct Hour
         this->value = h;
     }
 
-    Hour& operator+=(const Hour& rhs ) 
-    {
-        this->value += rhs.value;
-        return *this;
-    }
-
     inline void clear() {
         value = 0;
     }
@@ -116,12 +110,6 @@ struct Minute
 
     inline void clear() {
         value = 0;
-    }
-
-    Minute& operator+=(const Minute& rhs ) 
-    {
-        this->value += rhs.value;
-        return *this;
     }
     
 };
@@ -167,7 +155,7 @@ typedef struct TimeFormatHMS
     {  
     }
 
-    Hour& operator+=( Hour& rhs ) 
+    Hour& operator+=( Hour&& rhs ) 
     {
         // Нарушает инвариант
         if ( this->hour.value + rhs.value > 23 )
@@ -178,13 +166,13 @@ typedef struct TimeFormatHMS
         return this->hour;
     }
 
-    Minute& operator+=( Minute& rhs ) 
+    Minute& operator+=( Minute&& rhs ) 
     {
         // Нарушает инвариант
         if ( this->minutes.value + rhs.value >= 60 )
         {
             this->minutes.value = this->minutes.value + rhs.value - 60;
-            this->hour += Hour(1); 
+            *this += Hour(1); 
         
         } else 
             this->minutes.value += rhs.value;
@@ -198,7 +186,7 @@ typedef struct TimeFormatHMS
         if ( this->sec.value + rhs.value >= 60 )
         {
             this->sec.value = this->sec.value + rhs.value - 60;
-            this->minutes += Minute(1); 
+            *this += Minute(1); // К 'этому' времени добавляем +1 мин 
         
         } else 
             this->sec.value += rhs.value;
@@ -261,7 +249,11 @@ void outputTimetable( std::string& time_str  )
 
     originTime.HMSGR_print();
 
-    int diffHours = 12*60;
+    // Время системы
+    static time_t now = time(0);
+    static tm *ltm    = localtime(&now);
+    // Разницу умножаем в 1.2 раза и переводим в секунды
+    int diffHours     = (ltm->tm_hour - originTime.hour.value) * 1.2 * 3600; 
 
     for ( int i = 0; 
                 i < diffHours; 
