@@ -97,8 +97,11 @@ outputTimeTable () {
     printf "$HOUR:$MINUTE:$SECOND" 
     echo   "|$GREEN:$RED"
     
-    # ”словна€ разница во времени (сек)
-    diffTime=$((60 * 12)) 
+    # –азница между системным временем и исходным светофора (сек)
+    # идет до +2 часа к системному
+    
+    timeSystemHour=$(date '+%H')
+    diffTime=$(((timeSystemHour - HOUR) / 2 / 2 * 8 * 3600)) 
     
     for((originTime=0; originTime < diffTime; originTime+=$((GREEN+RED))))
     do
@@ -137,6 +140,10 @@ outputTimeTable () {
             ((HOUR+=1))
         fi
         
+        if [ $HOUR == 24 ]
+        then
+            HOUR=0
+        fi
         
     done
     
@@ -163,5 +170,4 @@ do
     outputTimeTable
 done
 # *  --------------------------------------------------------------\
-
 
