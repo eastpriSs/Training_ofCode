@@ -252,8 +252,8 @@ void outputTimetable( std::string& time_str  )
     // Время системы
     static time_t now = time(0);
     static tm *ltm    = localtime(&now);
-    // Разницу умножаем в 1.2 раза и переводим в секунды
-    int diffHours     = (ltm->tm_hour - originTime.hour.value) * 1.2 * 3600; 
+    // Разницу умножаем в 2 раза и переводим в секунды
+    int diffHours     = (ltm->tm_hour - originTime.hour.value) * 2 * 3600; 
 
     for ( int i = 0; 
                 i < diffHours; 
