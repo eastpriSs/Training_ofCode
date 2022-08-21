@@ -15,8 +15,8 @@ exe-name := Main # Исправить, также добавить ярлык
 #--------------------------------------------------------------------------------------------------
 
 #------------------ Пути линковки и компиляции	-------------------------------------------------------------------
-exe-link := D:\WORKONIT\cpp_experience\untitled\dll\GameMain
-dll-link := D:\WORKONIT\cpp_experience\untitled\dll\GameMain
+exe-link := D:\WORKONIT\cpp_experience\untitled\UNTITLED\dll\GameMain
+dll-link := D:\WORKONIT\cpp_experience\untitled\UNTITLED\dll\GameMain
 #--------------------------------------------------------------------------------------------------
 
 #------------------ Список объектных ------------------
