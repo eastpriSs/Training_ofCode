@@ -7,8 +7,8 @@
 
 all: compile link clean-obj
 
-compile:
-	g++ -I LIBS/include -c GameMain.cpp
+compile: Object.h
+	g++ -I LIBS/include -c GameMain.cpp Object.cpp
 
 #------------------ Имена -------------------------------------------------------------------
 exe-name := Main # Исправить, также добавить ярлык
@@ -20,7 +20,7 @@ dll-link := D:\WORKONIT\cpp_experience\untitled\UNTITLED\dll\GameMain
 #--------------------------------------------------------------------------------------------------
 
 #------------------ Список объектных ------------------
-obj-files := GameMain.o
+obj-files := GameMain.o Object.o
 #--------------------------------------------------------------------------------------------------
 
 
