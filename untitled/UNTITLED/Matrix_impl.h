@@ -21,8 +21,8 @@ void Matrix<T>::intrusive()
 			if ( j == 0 && i == 0)
 				mtr[i][j].intrusive(nullptr, &mtr[i][j+1]);
 			
-			else if (j == 0)
-				mtr[i][j].intrusive(&mtr[i-1][row-1], &mtr[i][j+1]);
+			else if (j == 0)		// Почему row-3 ??
+				mtr[i][j].intrusive(&mtr[i-1][row-3], &mtr[i][j+1]);
 
 			else if (j == row-1) 
 				mtr[i][j].intrusive(&mtr[i][j-1], &mtr[i+1][0]);

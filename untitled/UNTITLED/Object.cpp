@@ -8,16 +8,17 @@ void Object::check_mouse_clicked(const sf::Vector2i& cl)
         std::cout << cl.x << "|" << back_rect->getPosition().x << '\n';
     
     if (cl.x > _pos_x && cl.x < _pos_x+50)
-        if (cl.y > _pos_y && cl.x < _pos_y+50)
+        if (cl.y > _pos_y && cl.y < _pos_y+50)
             was_clicked();
 
 }
 
 void Object::was_clicked()
 {
-    symbol = '|';
+    symbol = ' ';
     is_clicked = true;
-    reload_text();     
+    reload_text();
+    change_color();     
 }    
 
 void Object::invariant() const
@@ -85,7 +86,7 @@ Object::Object()
     fnt(        new sf::Font), 
     symbol_txt( new sf::Text),  
 
-    symbol('a'),
+    symbol('A'),
     is_clicked(false),
 
     _pos_x(0), 
