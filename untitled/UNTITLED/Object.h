@@ -26,6 +26,8 @@ private:
     Object *left_obj; 
     Object *right_obj;
     
+    bool is_clicked;
+
 public:
     
     char symbol;
@@ -36,6 +38,9 @@ public:
     void intrusive(Object* l, Object* r);
     void change_color();
     void reload_text();
+    void check_mouse_clicked(const sf::Vector2i&);
+    void was_clicked();
+    void make_alphabet();
 
     Object();
     Object& operator =(Object&);
@@ -53,15 +58,23 @@ inline void Object::draw_on(sf::RenderWindow& w) noexcept
     w.draw(*symbol_txt);
 }
 
-// mtr[i][j].intrusive(mtr[i][j]-1, mtr[i][j]+1 );
+// mtr[i][j].intrusive(mtr[i][j-1], mtr[i][j+1] );
 inline void Object::intrusive(Object* l, Object* r)
 {
     left_obj  = l;
     right_obj = r;
-    
-    if (left_obj)
-        symbol = left_obj->symbol + 1;
-    
-    reload_text(); // Как вариант
-    invariant();
+    // invariant();
 }
+
+// brd[i][j].make_alphabet();
+inline void Object::make_alphabet()
+{
+    if (left_obj) 
+    {
+        symbol = left_obj->symbol + 1;
+        reload_text();
+    }
+    
+    if (right_obj) right_obj->make_alphabet();
+}
+

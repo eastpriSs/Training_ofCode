@@ -2,12 +2,30 @@
 
 // OBJECT.CPP
 
+void Object::check_mouse_clicked(const sf::Vector2i& cl)
+{
+    if (right_obj == nullptr)
+        std::cout << cl.x << "|" << back_rect->getPosition().x << '\n';
+    
+    if (cl.x > _pos_x && cl.x < _pos_x+50)
+        if (cl.y > _pos_y && cl.x < _pos_y+50)
+            was_clicked();
+
+}
+
+void Object::was_clicked()
+{
+    symbol = '|';
+    is_clicked = true;
+    reload_text();     
+}    
+
 void Object::invariant() const
 {
-    // Если указатель неверен
-    if (left_obj && right_obj) // Если только ни один из не указывает на нуль
-        if (left_obj+1 != this || right_obj-1 != this)
-            throw std::invalid_argument("Elment of type \"OBJECT\" must be intrusive." );
+    // // Если указатель неверен
+    // if (left_obj && right_obj) // Если только ни один из не указывает на нуль
+    //     if (left_obj+1 != this || right_obj-1 != this)
+    //         throw std::invalid_argument("Elment of type \"OBJECT\" must be intrusive." );
 }
 
 void Object::reload_text() 
@@ -67,7 +85,8 @@ Object::Object()
     fnt(        new sf::Font), 
     symbol_txt( new sf::Text),  
 
-    symbol('A'),
+    symbol('a'),
+    is_clicked(false),
 
     _pos_x(0), 
     _pos_y(0)  

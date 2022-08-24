@@ -19,6 +19,7 @@ private:
 		T* _row;
 	};
 	
+
 public:	
 	
 	Matrix(const int, const int);
@@ -33,6 +34,10 @@ public:
 	
 	void print() const;
 	short size() const;
+
+	// Дает свободу объектам, если у них
+	// есть метод intrusive(); 
+	void intrusive();
 
 	// Агрегаты
 	void fill_row(const size_t&, T*);

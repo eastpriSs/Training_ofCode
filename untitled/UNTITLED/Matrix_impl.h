@@ -11,6 +11,27 @@ inline short Matrix<T>::size() const {
 	return row*column;
 }
 
+template<typename T>
+void Matrix<T>::intrusive()
+{
+	for (size_t i = 0; i < column; i++)
+    {
+        for (size_t j = 0; j < row; j++) 
+        {
+			if ( j == 0 && i == 0)
+				mtr[i][j].intrusive(nullptr, &mtr[i][j+1]);
+			
+			else if (j == 0)
+				mtr[i][j].intrusive(&mtr[i-1][row-1], &mtr[i][j+1]);
+
+			else if (j == row-1) 
+				mtr[i][j].intrusive(&mtr[i][j-1], &mtr[i+1][0]);
+				
+			else mtr[i][j].intrusive(&mtr[i][j-1], &mtr[i][j+1]);
+			
+		}	  
+    }
+}
 
 // Операторы матрицы
 template<typename T>
