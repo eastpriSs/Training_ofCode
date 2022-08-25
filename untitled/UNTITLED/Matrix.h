@@ -18,7 +18,8 @@ private:
 		T& operator[](const int& id_y) { return *(_row+id_y); } // _row = *(mtr+id)
 		T* _row;
 	};
-	
+
+	T* t_row;
 
 public:	
 	
@@ -31,7 +32,7 @@ public:
 
 	Proxy operator[](const int&);
 	const Proxy operator[](const int&) const;
-	
+
 	void print() const;
 	short size() const;
 
@@ -46,9 +47,10 @@ public:
 	~Matrix();
 
 	static void clear(Matrix&);
-
+	
 	// Proxy pr;
-	T* t_row;
+	// Самый первый элемент 
+	T* first;
 
 }; // Matrix 
 

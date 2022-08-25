@@ -64,11 +64,8 @@ Matrix<T>::Matrix(const int x, const int y)
 
 	for(size_t i = 0; i < row; i++ )
 		mtr[i] = (T*) new T[column];
-	
-	for(size_t i = 0; i < row; i++ ) 
-		for(size_t j = 0; j < column; j++ )	
-			mtr[i][j] = T();
 
+	first = &mtr[0][0];
 }
 
 template<typename T>
@@ -92,7 +89,7 @@ void Matrix<T>::print() const
 template<typename T>
 Matrix<T>::~Matrix() {
 
-	for(size_t i = 0; i < row; i++)
+	for(size_t i = 0; i < column; i++)
 		delete [] mtr[i];
 	
 	delete[] mtr;

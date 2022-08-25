@@ -2,23 +2,12 @@
 
 // OBJECT.CPP
 
-void Object::check_mouse_clicked(const sf::Vector2i& cl)
-{
-    if (right_obj == nullptr)
-        std::cout << cl.x << "|" << back_rect->getPosition().x << '\n';
-    
-    if (cl.x > _pos_x && cl.x < _pos_x+50)
-        if (cl.y > _pos_y && cl.y < _pos_y+50)
-            was_clicked();
-
-}
-
 void Object::was_clicked()
 {
     symbol = ' ';
     is_clicked = true;
     reload_text();
-    change_color();     
+    change_color();  
 }    
 
 void Object::invariant() const
@@ -77,6 +66,7 @@ void Object::setPos(const short& x, const short& y) noexcept {
     back_rect->setPosition(_pos_x, _pos_y);
     front_shape->setPosition(_pos_x, _pos_y);
     symbol_txt->setPosition(_pos_x+17, _pos_y+6);
+
 }
 
 Object::Object() 
@@ -85,6 +75,9 @@ Object::Object()
     front_shape(new sf::CircleShape),
     fnt(        new sf::Font), 
     symbol_txt( new sf::Text),  
+
+    right_obj(nullptr),
+    left_obj(nullptr),
 
     symbol('A'),
     is_clicked(false),
@@ -109,6 +102,16 @@ Object::Object()
     symbol_txt->setFillColor(sf::Color::Red);
     symbol_txt->setString(symbol);
 
-    setPos(_pos_x, _pos_y);
+    back_rect->setPosition(_pos_x, _pos_y);
+    front_shape->setPosition(_pos_x, _pos_y);
+    symbol_txt->setPosition(_pos_x+17, _pos_y+6);
 
 }    
+
+Object::~Object()
+{
+    delete back_rect;
+    delete front_shape;
+    delete symbol_txt;
+    delete fnt;
+}

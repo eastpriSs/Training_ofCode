@@ -25,14 +25,15 @@ private:
     // Свойство интрузивности
     Object *left_obj; 
     Object *right_obj;
-    
-    bool is_clicked;
 
-public:
-    
+    bool is_clicked; 
+
+public:   
+
     char symbol;
 
     void setPos(const short&, const short&) noexcept;
+    
     void draw_on(sf::RenderWindow&) noexcept;
     void invariant() const;
     void intrusive(Object* l, Object* r);
@@ -45,7 +46,7 @@ public:
     Object();
     Object& operator =(Object&);
     Object& operator =(Object&&);
-    ~Object() = default;
+    ~Object();
 };
 
 // OBJECT.CPP
@@ -56,6 +57,8 @@ inline void Object::draw_on(sf::RenderWindow& w) noexcept
     w.draw(*back_rect);
     w.draw(*front_shape);
     w.draw(*symbol_txt);
+    
+    if (right_obj) right_obj->draw_on(w);
 }
 
 // mtr[i][j].intrusive(mtr[i][j-1], mtr[i][j+1] );
@@ -77,4 +80,16 @@ inline void Object::make_alphabet()
     
     if (right_obj) right_obj->make_alphabet();
 }
+
+
+inline void Object::check_mouse_clicked(const sf::Vector2i& cl)
+{ 
+    if (cl.x > _pos_x && cl.x < _pos_x+50)
+        if (cl.y > _pos_y && cl.y < _pos_y+50)
+            was_clicked();
+    
+    if (right_obj && !is_clicked) right_obj->check_mouse_clicked(cl);
+        else is_clicked = false;
+}
+
 
