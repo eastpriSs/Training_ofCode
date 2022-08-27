@@ -12,6 +12,17 @@ inline short Matrix<T>::size() const {
 }
 
 template<typename T>
+inline short Matrix<T>::rows() const {
+	return row;
+}
+
+template<typename T>
+inline short Matrix<T>::columns() const {
+	return column;
+}
+
+
+template<typename T>
 void Matrix<T>::intrusive()
 {
 	for (size_t i = 0; i < column; i++)

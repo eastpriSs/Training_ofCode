@@ -5,7 +5,6 @@
 void Object::was_clicked()
 {
     symbol = ' ';
-    is_clicked = true;
     reload_text();
     change_color();  
 }    
@@ -82,12 +81,15 @@ Object::Object()
     symbol('A'),
     is_clicked(false),
 
+    lenght_a(50),
+    lenght_b(50),
+
     _pos_x(0), 
     _pos_y(0)  
 {
 
     // Прямоугольник сзади круга
-    back_rect->setSize(sf::Vector2f(50, 50));
+    back_rect->setSize(sf::Vector2f(lenght_a, lenght_b));
     back_rect->setOutlineColor(sf::Color::White);
     back_rect->setOutlineThickness(5);
 

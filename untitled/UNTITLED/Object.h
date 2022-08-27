@@ -32,6 +32,11 @@ public:
 
     char symbol;
 
+    short lenght_a;
+    short lenght_b;
+    short row;
+    short column; 
+
     void setPos(const short&, const short&) noexcept;
     
     void draw_on(sf::RenderWindow&) noexcept;
@@ -39,9 +44,14 @@ public:
     void intrusive(Object* l, Object* r);
     void change_color();
     void reload_text();
-    void check_mouse_clicked(const sf::Vector2i&);
+    bool check_mouse_clicked(const sf::Vector2i&);
     void was_clicked();
     void make_alphabet();
+    void dance();
+    void init(const short&, const short&);
+
+    const short& x() const;
+    const short& y() const; 
 
     Object();
     Object& operator =(Object&);
@@ -50,6 +60,18 @@ public:
 };
 
 // OBJECT.CPP
+
+inline const short& Object::x() const {
+    return _pos_x;
+}
+
+inline const short& Object::y() const {
+    return _pos_y;
+}     
+
+inline void Object::init(const short& c, const short& r) {
+    column = c; row = r; 
+}
 
 // mtr[i][j].draw_on(win);
 inline void Object::draw_on(sf::RenderWindow& w) noexcept 
@@ -82,14 +104,29 @@ inline void Object::make_alphabet()
 }
 
 
-inline void Object::check_mouse_clicked(const sf::Vector2i& cl)
+inline bool Object::check_mouse_clicked(const sf::Vector2i& cl)
 { 
-    if (cl.x > _pos_x && cl.x < _pos_x+50)
-        if (cl.y > _pos_y && cl.y < _pos_y+50)
+    if (cl.x > _pos_x && cl.x < _pos_x+50) {
+        if (cl.y > _pos_y && cl.y < _pos_y+50) {
             was_clicked();
+            return true;
+        }
+    }
     
-    if (right_obj && !is_clicked) right_obj->check_mouse_clicked(cl);
-        else is_clicked = false;
+    if (right_obj) right_obj->check_mouse_clicked(cl);
+        else return false;
+    
+    return true;
 }
 
-
+inline void Object::dance()
+{   
+    // Шанс 30 %
+    if ( (rand()% 3 + 1) == 2 ) 
+    {
+        back_rect->setFillColor(sf::Color(rand()% 255,rand()% 255,rand()% 255));
+        front_shape->setFillColor(sf::Color(rand()% 255,rand()% 255,rand()% 255));
+    }
+    
+    if (right_obj) right_obj->dance();
+}

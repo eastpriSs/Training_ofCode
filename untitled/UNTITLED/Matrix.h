@@ -35,7 +35,8 @@ public:
 
 	void print() const;
 	short size() const;
-
+	short rows() const;
+	short columns() const; 
 	// Дает свободу объектам, если у них
 	// есть метод intrusive(); 
 	void intrusive();
