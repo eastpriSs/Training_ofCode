@@ -4,6 +4,8 @@
 #include <fstream>
 #include <Windows.h>
 
+#pragma comment(lib, "Winmm.lib")
+
 INT save_screenshot(HDC& hdc, HBITMAP& hBit, const short& h, const short& w)
 {
 
@@ -143,8 +145,30 @@ void make_screenshot()
 INT main()
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
-    Sleep(1'000);
-    std::thread th(make_screenshot);
-    th.join();
+    // Отслеживание клавиш
+    while (true) {
+
+        // CNTRL+HOME скриншот
+        if (GetAsyncKeyState(VK_CONTROL)) 
+        {
+            if (GetAsyncKeyState(VK_HOME)) 
+            {
+                std::thread th(make_screenshot);
+                th.join();
+                mciSendString("play this_play_when_screen.mp3", NULL, 0, NULL);
+                Sleep(100);
+            }
+        }
+
+        // CNTRL+RSHIFT выход из программы
+        if (GetAsyncKeyState(VK_CONTROL)) 
+        {
+            if (GetAsyncKeyState(VK_RSHIFT)) 
+            {
+                break;
+            }
+        }
+        Sleep(500);
+    }
     return 0;
 }
