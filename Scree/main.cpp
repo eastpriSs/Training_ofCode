@@ -159,7 +159,7 @@ INT main()
                 Sleep(100);
             }
         }
-
+        // HARDCODED
         // CNTRL+RSHIFT выход из программы
         if (GetAsyncKeyState(VK_CONTROL)) 
         {
