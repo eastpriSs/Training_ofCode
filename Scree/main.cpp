@@ -4,9 +4,123 @@
 #include <fstream>
 #include <Windows.h>
 
+// cd "d:\WORKONIT\cpp_experience\Scree\" ; if ($?) { g++ main.cpp -lgdi32 -lwinmm  -fconcepts -o main } ; if ($?) { .\main }
 #pragma comment(lib, "Winmm.lib")
 
-INT save_screenshot(HDC& hdc, HBITMAP& hBit, const short& h, const short& w)
+class Parser
+{
+public:
+
+    Parser();
+    void parse(std::string&&);
+
+    std::string resolution_w;
+    std::string resolution_h;
+
+    std::string first_button;
+    std::string second_button; 
+
+    std::string folder_link;
+
+private:    
+
+};
+
+Parser::Parser()
+: resolution_h(),
+  resolution_w(),
+  first_button(),
+  second_button(),
+  folder_link()
+{
+}
+
+void Parser::parse(std::string&& link)
+{
+    int line_number = 0;
+    std::string line;
+    std::ifstream myfile (link);
+
+    if (myfile.is_open())
+    {
+        while ( line_number <= 4 )
+        {
+            getline (myfile,line);
+            
+            line_number++;
+            switch ( line_number ) { 
+            // Разрешение
+            case 1: 
+            {
+                unsigned short i = 0; 
+                while ( isdigit(line[i]) )
+                {
+                    resolution_w += line[i];    
+                    i++;
+                }
+                i++; // Пропускаем сепаратор
+                while ( isdigit(line[i]) )
+                {
+                    resolution_h += line[i];    
+                    i++;
+                }
+                break;
+            }
+            // Первая кнопка
+            case 2: 
+            {
+                unsigned short i = 0; 
+                while ( line[i] != ';' )
+                {
+                    first_button += line[i];    
+                    i++;
+                }
+                break;
+            }
+            // Вторая кнопка
+            case 3: 
+            {
+                unsigned short i = 0; 
+                while ( line[i] != ';' )
+                {
+                    second_button += line[i];    
+                    i++;
+                }
+                break;
+            }
+            // Папка
+            case 4: 
+            {
+                unsigned short i = 0; 
+                while ( line[i] != ';' )
+                {
+                    folder_link += line[i];    
+                    i++;
+                }
+                break;
+            }
+
+            }
+        }
+        myfile.close();
+    }
+    else std::cout << "Unable to open file"; 
+
+    std::cout << resolution_w << '\n';
+    std::cout << resolution_h << '\n';
+    std::cout << first_button << '\n';
+    std::cout << second_button << '\n';
+    std::cout << folder_link << '\n';
+
+}
+
+const std::string get_name_file()
+{
+    return "image.bmp";
+}
+
+INT save_screenshot(HDC& hdc, HBITMAP& hBit, const short& h, 
+                    const short& w, Parser&& dt)
 {
 
     if( hdc==NULL ) {
@@ -98,12 +212,13 @@ INT save_screenshot(HDC& hdc, HBITMAP& hBit, const short& h, const short& w)
     bitmapinfoheader.biClrImportant     = 0;
     
     std::ofstream file;
-    file.open("image.bmp", std::ios::binary| std::ios::trunc | std::ios::out);
+    file.open( dt.folder_link + get_name_file(), std::ios::binary| std::ios::trunc | std::ios::out);
     file.write((char*)&bmfh, sizeof(BITMAPFILEHEADER));
     file.write((char*)&bitmapinfoheader, sizeof(BITMAPINFOHEADER));
  
     if( dwNumColors!=0 )
         file.write((char*)colors, sizeof(RGBQUAD)*dwNumColors); 
+        
     file.write((char*)pBits, (dwWidth*dwHeight*dwBPP)/8);
 
     DeleteObject(bitmap);
@@ -113,7 +228,7 @@ INT save_screenshot(HDC& hdc, HBITMAP& hBit, const short& h, const short& w)
     return 0;
 }
 
-void make_screenshot()
+void make_screenshot(Parser&& dt)
 {
     HWND hwnd;
     int x1,y1,
@@ -124,9 +239,14 @@ void make_screenshot()
     y1 = GetSystemMetrics(SM_YVIRTUALSCREEN);
     x2 = GetSystemMetrics(SM_CXVIRTUALSCREEN);
     y2 = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-    
-    w = GetSystemMetrics(SM_CXSCREEN);
-    h = GetSystemMetrics(SM_CYSCREEN);
+
+    if ( dt.resolution_h == "0" || dt.resolution_w == "0" ) {    
+        w = GetSystemMetrics(SM_CXSCREEN);
+        h = GetSystemMetrics(SM_CYSCREEN);
+    } else {
+        w = std::stoi(dt.resolution_w);
+        h = std::stoi(dt.resolution_h);
+    }
 
     HDC hScreen = GetDC(NULL);
     HDC hDC = CreateCompatibleDC(hScreen);
@@ -139,32 +259,62 @@ void make_screenshot()
     SetClipboardData(CF_BITMAP, hbitmap);
     CloseClipboard();
     
-    save_screenshot(hScreen, hbitmap, h, w);
+    save_screenshot(hScreen, hbitmap, h, w, std::move(dt));
+}
+
+void detect_pressed()
+{
+    
 }
 
 INT main()
 {
     ShowWindow(GetConsoleWindow(), SW_HIDE);
+
+    Parser data;
+    data.parse("cfg/settings.txt");
+
+    auto first_button  = VK_CONTROL;
+    auto second_button = VK_HOME;
+
+    if ( data.first_button != "0" )
+    {
+        if ( std::tolower(data.first_button) == "shift"   )      first_button = VK_SHIFT   ;
+        else if ( std::tolower(data.first_button) == "control" ) first_button = VK_CONTROL ;
+        else if ( std::tolower(data.first_button) == "rshift"  ) first_button = VK_RSHIFT  ;
+        else if ( std::tolower(data.first_button) == "rcontrol") first_button = VK_RCONTROL;
+    }
+
+    if ( data.second_button != "0" )
+    {
+        if ( std::tolower(data.second_button) == "shift"   )      second_button = VK_SHIFT   ;
+        else if ( std::tolower(data.second_button) == "control" ) second_button = VK_CONTROL ;
+        else if ( std::tolower(data.second_button) == "rshift"  ) second_button = VK_RSHIFT  ;
+        else if ( std::tolower(data.second_button) == "rcontrol") second_button = VK_RCONTROL;
+    }
+    
     // Отслеживание клавиш
     while (true) {
 
         // CNTRL+HOME скриншот
-        if (GetAsyncKeyState(VK_CONTROL)) 
+        if (GetAsyncKeyState(first_button)) 
         {
-            if (GetAsyncKeyState(VK_HOME)) 
+            if (GetAsyncKeyState(second_button)) 
             {
-                std::thread th(make_screenshot);
+                std::thread th(make_screenshot, std::move( data ));
                 th.join();
                 mciSendString("play this_play_when_screen.mp3", NULL, 0, NULL);
-                Sleep(100);
+                Sleep(200);
             }
         }
-        // HARDCODED
+
         // CNTRL+RSHIFT выход из программы
-        if (GetAsyncKeyState(VK_CONTROL)) 
+        if (GetAsyncKeyState(first_button)) 
         {
-            if (GetAsyncKeyState(VK_RSHIFT)) 
+            if (GetAsyncKeyState(VK_F5)) 
             {
+                mciSendString("play this_play_when_exit.mp3", NULL, 0, NULL);
+                Sleep(1'000);
                 break;
             }
         }
